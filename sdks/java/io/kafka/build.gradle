@@ -81,10 +81,8 @@ configurations.kafkaVersion210 {
 task kafkaVersion210Test(type: Test) {
   group = "Verification"
   description = 'Runs KafkaIO tests with Kafka clients API 2.1.0'
-  outputs.upToDateWhen { false }
   testClassesDirs = sourceSets.test.output.classesDirs
   classpath =  configurations.kafkaVersion210 + sourceSets.test.runtimeClasspath
-  include '**/KafkaIOTest.class'
   shouldRunAfter test
   useJUnit { }
 }
