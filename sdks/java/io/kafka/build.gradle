@@ -66,8 +66,8 @@ dependencies {
   testRuntimeOnly project(path: ":runners:direct-java", configuration: "shadow")
 }
 
-// As published at https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients , 1.0.0 onwards
-def alternate_kafka_versions = ["1.0.1", "2.0.0", "2.0.1", "2.1.0", "2.1.1", "2.2.0", "2.2.1", "2.2.2", "2.3.0", "2.3.1", "2.4.0", "2.4.1", "2.5.0", "2.5.1", "2.6.0"]
+// As published at https://kafka.apache.org/downloads, 1.0.0 onwards and latest patch of each version
+def alternate_kafka_versions = ["1.0.2", "1.1.1", "2.0.1", "2.1.1", "2.2.2", "2.3.1", "2.4.1", "2.5.1", "2.6.0"]
 
 alternate_kafka_versions.each { kafkaVersion ->
   configurations.create "kafkaVersion${kafkaVersion}"
