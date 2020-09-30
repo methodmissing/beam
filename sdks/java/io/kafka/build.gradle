@@ -31,11 +31,6 @@ enableJavaPerformanceTesting()
 description = "Apache Beam :: SDKs :: Java :: IO :: Kafka"
 ext.summary = "Library to read Kafka topics."
 
-// Testing Kafka clients API 2.1.0 onwards (deserialization with Headers suppport)
-configurations {
-  kafkaVersion210
-}
-
 dependencies {
   compile library.java.vendored_guava_26_0_jre
   compile project(path: ":sdks:java:core", configuration: "shadow")
@@ -69,22 +64,29 @@ dependencies {
   testCompile library.java.powermock_mockito
   testRuntimeOnly library.java.slf4j_jdk14
   testRuntimeOnly project(path: ":runners:direct-java", configuration: "shadow")
-  kafkaVersion210 "org.apache.kafka:kafka-clients:2.1.0"
 }
 
-configurations.kafkaVersion210 {
-  resolutionStrategy {
-    force "org.apache.kafka:kafka-clients:2.1.0"
+// As published at https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients , 1.0.0 onwards
+def alternate_kafka_versions = ["1.0.1", "2.0.0", "2.0.1", "2.1.0", "2.1.1", "2.2.0", "2.2.1", "2.2.2", "2.3.0", "2.3.1", "2.4.0", "2.4.1", "2.5.0", "2.5.1", "2.6.0"]
+
+alternate_kafka_versions.each { kafkaVersion ->
+  configurations.create "kafkaVersion${kafkaVersion}"
+
+  dependencies.add("kafkaVersion${kafkaVersion}", "org.apache.kafka:kafka-clients:${kafkaVersion}")
+  configurations."kafkaVersion${kafkaVersion}" {
+    resolutionStrategy {
+      force "org.apache.kafka:kafka-clients:${kafkaVersion}"
+    }
   }
-}
 
-task kafkaVersion210Test(type: Test) {
-  group = "Verification"
-  description = 'Runs KafkaIO tests with Kafka clients API 2.1.0'
-  testClassesDirs = sourceSets.test.output.classesDirs
-  classpath =  configurations.kafkaVersion210 + sourceSets.test.runtimeClasspath
-  shouldRunAfter test
-  useJUnit { }
-}
+  tasks.create(name: "kafkaVersion${kafkaVersion}Test", type: Test) {
+    group = "Verification"
+    description = 'Runs KafkaIO tests with Kafka clients API ' + kafkaVersion
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = configurations."kafkaVersion${kafkaVersion}" + sourceSets.test.runtimeClasspath
+    shouldRunAfter test
+    useJUnit { }
+  }
 
-check.dependsOn kafkaVersion210Test
+  check.dependsOn "kafkaVersion${kafkaVersion}Test"
+}
